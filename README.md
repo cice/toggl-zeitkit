@@ -8,7 +8,7 @@ and submit as worklogs to Zeitkit
 ```
 
 ```ruby
-generator = Generate.create_month(2018, 5)
+generator = Generator.create_month(2018, 5)
 
 generator.submit
 ```
