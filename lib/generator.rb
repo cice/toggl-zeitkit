@@ -27,6 +27,10 @@ class Generator
       end
 
       entry[:card_names] = days_cards.map {|c| '* ' + c.data['card']['name']}.uniq
+
+      if entry[:card_names].blank?
+        entry[:card_names] = [entry[:description]]
+      end
     end
   end
 
