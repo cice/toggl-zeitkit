@@ -35,7 +35,7 @@ class TrelloClient
 
   def get_actions(since, options = {})
     options = options.merge({
-      filter: ['addMemberToCard', 'updateCheckItemStateOnCard'],
+      filter: ['addMemberToCard', 'updateCheckItemStateOnCard'] * ',',
       limit: 1000,
       member: true,
       since: since.iso8601
@@ -43,8 +43,15 @@ class TrelloClient
 
     actions = board.actions(options)
     count = actions.length
+
     actions = actions.select do |action|
-      action.member_participant && action.member_participant['id'] == member.id || action.member_creator_id == member.id
+      if (action.member_participant && action.member_participant['id'] == member.id) || action.member_creator_id == member.id
+        true
+      else
+        #binding.pry
+        puts 'dismissed ' + action.inspect
+        false
+      end
     end
 
     [actions, count]
