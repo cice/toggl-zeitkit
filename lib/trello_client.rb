@@ -19,6 +19,8 @@ class TrelloClient
   end
 
   def get_all_actions(since, options = {})
+    return [] if @board_id.blank?
+
     total = []
     actions, count = get_actions(since, options.merge(page: 0, limit: 1000))
     total += actions

@@ -61,6 +61,9 @@ class Generator
 
   def submit
     worklogs = create_worklogs
+    worklogs.each do |w|
+      raise "Workflow #{w.timeframes} is missing description" if w.description.blank?
+    end
     project = Zeitkit::Project.create
 
     worklogs.each do |w|
@@ -77,7 +80,7 @@ class Generator
       trello = TrelloClient.create
       toggl = Toggl::Project.create
 
-      new toggl.get_reports(start, finish), trello.get_all_actions(start), ENV['TZ']
+      new toggl.get_reports(start, finish), trello.get_all_actions(start - 4), ENV['TZ']
     end
   end
 end
