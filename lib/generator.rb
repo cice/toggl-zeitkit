@@ -26,7 +26,7 @@ class Generator
         days_cards = cards
       end
 
-      entry[:card_names] = days_cards.map {|c| '* ' + c.data['card']['name']}.uniq
+      entry[:card_names] = days_cards.map { |c| '* ' + c.data['card']['name'] }.uniq
 
       if entry[:card_names].blank?
         entry[:card_names] = [entry[:description]]
@@ -74,6 +74,12 @@ class Generator
   class << self
     def create_month(y, m)
       create(Date.new(y, m, 1), Date.new(y, m, -1))
+    end
+
+    def create_last_week(n = 1)
+      a = (n * 7) + 1
+      b = 1 + ((n - 1) * 7)
+      create(Date.today.beginning_of_week(:monday) - a.days, Date.today.beginning_of_week(:monday) - b.days)
     end
 
     def create(start, finish)
