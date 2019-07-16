@@ -4,12 +4,13 @@ require 'rounding'
 class Generator
   attr_reader :toggl_entries, :trello_actions
 
-  def initialize(toggl_entries, trello_actions, tz)
+  def initialize(toggl_entries, trello_actions, tz, tags = false)
     @toggl_entries = toggl_entries.sort_by do |entry|
       entry[:start]
     end
     @trello_actions = trello_actions
     @tz = tz
+    @tags = tags
   end
 
   def generate_descriptions
@@ -36,18 +37,25 @@ class Generator
 
   def group_by_day
     @toggl_entries.group_by do |entry|
-      entry[:start].in_time_zone(@tz).midnight
+      [entry[:start].in_time_zone(@tz).midnight]
+    end
+  end
+
+  def group_by_day_and_tag
+    @toggl_entries.group_by do |entry|
+      [entry[:start].in_time_zone(@tz).midnight, entry[:tags][0]]
     end
   end
 
   def create_worklogs
     generate_descriptions
 
-    group_by_day.map do |(day, entries)|
+    (@tags ? group_by_day_and_tag : group_by_day).map do |((_, tag), entries)|
       card_names = entries.sum([]) { |e| e[:card_names] || [] }.uniq
 
       worklog = Zeitkit::Worklog.new
       worklog.description = card_names * "\n"
+      worklog.description = "#{tag}\n#{worklog.description}" if @tags
 
       entries.each do |entry|
         start = entry[:start].floor_to 5.minutes
@@ -79,14 +87,18 @@ class Generator
     def create_last_week(n = 1)
       a = (n * 7) + 1
       b = 1 + ((n - 1) * 7)
-      create(Date.today.beginning_of_week(:monday) - a.days, Date.today.beginning_of_week(:monday) - b.days)
+      create(Date.today.beginning_of_week(:monday) - a.days,
+        Date.today.beginning_of_week(:monday) - b.days,
+
+      )
     end
 
     def create(start, finish)
       trello = TrelloClient.create
       toggl = Toggl::Project.create
 
-      new toggl.get_reports(start, finish), trello.get_all_actions(start - 4), ENV['TZ']
+      new toggl.get_reports(start, finish), trello.get_all_actions(start - 4), ENV['TZ'],
+        ENV['WITH_TAGS'] == 'true'
     end
   end
 end
