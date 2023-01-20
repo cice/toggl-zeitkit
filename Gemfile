@@ -19,7 +19,7 @@ gem "dotenv", "~> 2.4"
 gem "pry", "~> 0.11.3"
 
 # Added at 2018-06-01 11:39:46 +0200 by mariantheisen:
-gem "activesupport", "~> 5.2"
+gem "activesupport", "~> 6.1"
 
 # Added at 2018-06-01 12:03:35 +0200 by mariantheisen:
 gem "rounding", "~> 1.0"
